@@ -11,7 +11,6 @@ namespace Api.Controllers;
 [Route("api/v1/[controller]")]
 public class EmployeesController : ControllerBase
 {
-    
     private readonly IEmployeeRepository _repository;
     private readonly ModelToDtosMapper _mapper;
 
@@ -48,7 +47,7 @@ public class EmployeesController : ControllerBase
         
         var result = new ApiResponse<List<GetEmployeeDto>>
         {
-            Data = _mapper.EmployeesToGetEmployeeDtos(employees).ToList(),
+            Data = _mapper.EmployeesToGetEmployeeDtosList(employees),
             Success = true
         };
 

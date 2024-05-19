@@ -12,6 +12,7 @@ public partial class ModelToDtosMapper
 {
     public partial GetEmployeeDto EmployeeToGetEmployeeDto(Models.Employee employee);
     
-    public partial IEnumerable<GetEmployeeDto> EmployeesToGetEmployeeDtos(IEnumerable<Models.Employee> employee);
+    public partial List<GetEmployeeDto> EmployeesToGetEmployeeDtosList(IEnumerable<Models.Employee> employee);
     public partial GetDependentDto DependentToGetDependentDto(Models.Dependent dependent);
+    public partial List<GetDependentDto> DependentToGetDependentDtosList(IEnumerable<Models.Dependent> dependents);
 }

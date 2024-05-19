@@ -1,5 +1,4 @@
 using Api.Dtos;
-using Api.Models;
 using Api.Repositories;
 using Microsoft.OpenApi.Models;
 
@@ -8,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ModelToDtosMapper>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepositoryInMemory>();
+builder.Services.AddScoped<IEmployeeRepository, InMemoryRepository>();
+builder.Services.AddScoped<IDependentRepository, InMemoryRepository>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -7,7 +7,14 @@ namespace Api.Repositories;
 /// </summary>
 //note: For now I will just use list to store the data, but in a real application this would be some kind of a database.
 // TODO - Replace this with a real database.
-public class EmployeeRepositoryInMemory : IEmployeeRepository
+
+//note 2: I decided to use this repository for both interfaces, because it stores both entities and it would be easier to manage for now.
+// During the real implementation I would have few questions to do right decisions here and I would even question existence of API for dependents,
+// because dependent is always part of some employee and API for employee already returns all dependents:  
+// - Does any part of our application list all dependents without employees? if not "Get all dependent" endpoint is not needed.
+// - Does any part of our application need to load Dependent without previously loading Employee? if not "Get dependent by id" endpoint is not needed, if yes -> How did this part gets the Dependent Id?
+// So it could lead to remove DependentController and its repository - I can explain this more on the interview 
+public class InMemoryRepository : IEmployeeRepository , IDependentRepository 
 {
     private readonly List<Employee> _employeesStorage = new List<Employee>
     {
@@ -75,9 +82,19 @@ public class EmployeeRepositoryInMemory : IEmployeeRepository
         }
     };
     
-    public async Task<IEnumerable<Employee>> GetAll(CancellationToken cancellationToken = default)
+    public Task<IEnumerable<Employee>> GetAll(CancellationToken cancellationToken = default)
     {
-        return await Task.FromResult(_employeesStorage.AsEnumerable());
+        return Task.FromResult(_employeesStorage.AsEnumerable());
+    }
+
+    Task<Dependent?> IDependentRepository.Find(int id, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(_employeesStorage.SelectMany(e => e.Dependents).FirstOrDefault(d => d.Id == id));
+    }
+
+    Task<IEnumerable<Dependent>> IDependentRepository.GetAll(CancellationToken cancellationToken)
+    {
+        return Task.FromResult(_employeesStorage.SelectMany(e => e.Dependents));
     }
 
     public Task<Employee?> Find(int id, CancellationToken cancellationToken = default)
