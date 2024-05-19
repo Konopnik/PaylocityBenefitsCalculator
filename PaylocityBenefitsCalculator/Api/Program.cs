@@ -7,9 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ModelToDtosMapper>();
-builder.Services.AddScoped<IEmployeeRepository, InMemoryRepository>();
-builder.Services.AddScoped<IDependentRepository, InMemoryRepository>();
 
+builder.Services.AddRepositories();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
