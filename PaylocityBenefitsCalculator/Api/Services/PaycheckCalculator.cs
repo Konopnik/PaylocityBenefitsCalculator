@@ -12,9 +12,14 @@ public class PaycheckCalculator : IPaycheckCalculator
             Year = year,
             Employee = employee,
             Number = number,
-            GrossAmount = 0,
+            GrossAmount = CalculateGrossAmount(employee.Salary),
             DeductionsAmount = 0,
             NetAmount = 0,
         };
+    }
+
+    private decimal CalculateGrossAmount(decimal employeeSalary)
+    {
+        return employeeSalary / 26m;
     }
 }

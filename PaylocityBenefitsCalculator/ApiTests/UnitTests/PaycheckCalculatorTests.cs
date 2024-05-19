@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Models;
 using Api.Services;
@@ -16,4 +17,26 @@ public class PaycheckCalculatorTests
 
         paycheck.Should().NotBeNull();
     }
+
+    [Theory]
+    [MemberData(nameof(GrossAmountTestCases))]
+
+    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectGrossAmount(
+        decimal salary, decimal expectedGrossAmount)
+    {
+        var paycheckCalculator = new PaycheckCalculator();
+
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
+
+        paycheck.Should().NotBeNull();
+        paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+    }
+
+    public static TheoryData<decimal, decimal> GrossAmountTestCases = new()
+    {
+        { 26_000m, 1_000m },
+        { 10_000m, 384.62m },
+        { 0m, 0m },
+    };
+
 }

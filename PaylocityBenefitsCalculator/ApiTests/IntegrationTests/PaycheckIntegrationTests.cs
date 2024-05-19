@@ -25,7 +25,7 @@ public class PaycheckIntegrationTests : IntegrationTest
                 DateOfBirth = new DateTime(1984, 12, 30)
             },
             Number = 2,
-            GrossAmount = 0,
+            GrossAmount = 2_900.8073076923076923076923077m,
             DeductionsAmount = 0,
             NetAmount = 0,
         };
