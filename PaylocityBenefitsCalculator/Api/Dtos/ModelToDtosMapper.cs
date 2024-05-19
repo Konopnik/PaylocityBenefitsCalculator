@@ -1,5 +1,6 @@
 using Api.Dtos.Dependent;
 using Api.Dtos.Employee;
+using Api.Dtos.Paycheck;
 using Riok.Mapperly.Abstractions;
 
 namespace Api.Dtos;
@@ -11,6 +12,7 @@ namespace Api.Dtos;
 public partial class ModelToDtosMapper
 {
     public partial GetEmployeeDto EmployeeToGetEmployeeDto(Models.Employee employee);
+    public partial GetPaycheckDto PaycheckToGetPaycheckDto(Models.Paycheck paycheck);
     
     public partial List<GetEmployeeDto> EmployeesToGetEmployeeDtosList(IEnumerable<Models.Employee> employee);
     public partial GetDependentDto DependentToGetDependentDto(Models.Dependent dependent);

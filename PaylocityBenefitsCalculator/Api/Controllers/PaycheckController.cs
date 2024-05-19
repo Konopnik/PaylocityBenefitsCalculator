@@ -2,6 +2,7 @@ using Api.Dtos;
 using Api.Dtos.Paycheck;
 using Api.Models;
 using Api.Repositories;
+using Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -19,11 +20,13 @@ namespace Api.Controllers;
 [Route("api/v1/[controller]")]
 public class PaycheckController : ControllerBase
 {
+    private readonly IPaycheckCalculator _paycheckCalculator;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ModelToDtosMapper _mapper;
 
-    public PaycheckController(IEmployeeRepository employeeRepository, ModelToDtosMapper mapper)
+    public PaycheckController(IPaycheckCalculator paycheckCalculator, IEmployeeRepository employeeRepository, ModelToDtosMapper mapper)
     {
+        _paycheckCalculator = paycheckCalculator;
         _employeeRepository = employeeRepository;
         _mapper = mapper;
     }
@@ -42,21 +45,11 @@ public class PaycheckController : ControllerBase
             return NotFound();
         }
 
-        var employeeDto = _mapper.EmployeeToGetEmployeeDto(employee);
-        //note: starting with just simple implementation to return paycheck with 0 amounts to have working endpoint
-        var paycheck = new GetPaycheckDto()
-        {
-            Year = year,
-            Employee = employeeDto,
-            Number = paycheckNumber,
-            GrossAmount = 0,
-            DeductionsAmount = 0,
-            NetAmount = 0,
-        };
-
+        var paycheck = await _paycheckCalculator.Calculate(year, paycheckNumber, employee);
+        
         var result = new ApiResponse<GetPaycheckDto>
         {
-            Data = paycheck,
+            Data =  _mapper.PaycheckToGetPaycheckDto(paycheck),
             Success = true
         };
 
