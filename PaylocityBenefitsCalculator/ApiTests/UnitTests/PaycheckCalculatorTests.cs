@@ -30,6 +30,17 @@ public class PaycheckCalculatorTests
 
         paycheck.Should().NotBeNull();
         paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+    }    
+    
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithBaseEmployeeDeduction()
+    {
+        var paycheckCalculator = new PaycheckCalculator();
+
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1234567 });
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().Contain(d => d.Amount == 1_000m && d.Type == DeductionType.Base);
     }
 
     public static TheoryData<decimal, decimal> GrossAmountTestCases = new()

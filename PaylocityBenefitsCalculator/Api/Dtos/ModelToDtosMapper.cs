@@ -12,7 +12,15 @@ namespace Api.Dtos;
 public partial class ModelToDtosMapper
 {
     public partial GetEmployeeDto EmployeeToGetEmployeeDto(Models.Employee employee);
+    
+    [MapProperty(nameof(Models.Paycheck.Deductions), nameof(GetPaycheckDto.DeductionsAmount), Use = nameof(MapDeductionsAmount))]
     public partial GetPaycheckDto PaycheckToGetPaycheckDto(Models.Paycheck paycheck);
+    
+    [UserMapping(Default = false)]
+    public decimal MapDeductionsAmount(ICollection<Models.Deduction> deductions)
+    {
+        return deductions.Sum(d => d.Amount);
+    }
     
     public partial List<GetEmployeeDto> EmployeesToGetEmployeeDtosList(IEnumerable<Models.Employee> employee);
     public partial GetDependentDto DependentToGetDependentDto(Models.Dependent dependent);

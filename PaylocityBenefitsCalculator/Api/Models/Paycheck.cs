@@ -6,6 +6,7 @@ public class Paycheck
     public int Number { get; set; }
     public Employee Employee { get; set; }
     public decimal GrossAmount { get; set; }
-    public int DeductionsAmount { get; set; }
     public decimal NetAmount { get; set; }
+
+    public ICollection<Deduction> Deductions { get; set; } = new List<Deduction>();
 }
