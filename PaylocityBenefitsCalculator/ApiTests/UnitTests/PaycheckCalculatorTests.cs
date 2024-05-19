@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Models;
 using Api.Services;
+using Api.Settings;
 using FluentAssertions;
 using Xunit;
 
@@ -9,10 +9,20 @@ namespace ApiTests.UnitTests;
 
 public class PaycheckCalculatorTests
 {
+    private static PaycheckCalculator GetPaycheckCalculator(PaycheckCalculatorSettings settings)
+    {
+        return new PaycheckCalculator(settings);
+    }
+
+    private static PaycheckCalculator GetPaycheckCalculator()
+    {
+        return GetPaycheckCalculator( new PaycheckCalculatorSettings());
+    }
+
     [Fact]
     public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnSomePaycheck()
     {
-        var paycheckCalculator = new PaycheckCalculator();
+        var paycheckCalculator = GetPaycheckCalculator();
         var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee());
 
         paycheck.Should().NotBeNull();
@@ -20,27 +30,15 @@ public class PaycheckCalculatorTests
 
     [Theory]
     [MemberData(nameof(GrossAmountTestCases))]
-
     public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectGrossAmount(
         decimal salary, decimal expectedGrossAmount)
     {
-        var paycheckCalculator = new PaycheckCalculator();
+        var paycheckCalculator = GetPaycheckCalculator();
 
         var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
         paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
-    }    
-    
-    [Fact]
-    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithBaseEmployeeDeduction()
-    {
-        var paycheckCalculator = new PaycheckCalculator();
-
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1234567 });
-
-        paycheck.Should().NotBeNull();
-        paycheck.Deductions.Should().Contain(d => d.Amount == 1_000m && d.Type == DeductionType.Base);
     }
 
     public static TheoryData<decimal, decimal> GrossAmountTestCases = new()
@@ -50,4 +48,43 @@ public class PaycheckCalculatorTests
         { 0m, 0m },
     };
 
+    [Theory]
+    [MemberData(nameof(GrossAmountWithConfiguredPaycheckCountTestCases))]
+    public async Task WhenAskedForCalculationOfPaycheckWithChangedPaycheckCount_ShouldReturnPaycheckWithCorrectGrossAmount(int paycheckCountPerYear, decimal salary, decimal expectedGrossAmount)
+    {
+        var paycheckCalculator = GetPaycheckCalculator(new PaycheckCalculatorSettings() { PaycheckCountPerYear = paycheckCountPerYear });
+
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
+
+        paycheck.Should().NotBeNull();
+        paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+    }
+
+    public static TheoryData<int, decimal, decimal> GrossAmountWithConfiguredPaycheckCountTestCases = new()
+    {
+        { 26, 26_000m, 1_000m },
+        { 12, 12_000m, 1_000m },
+    };
+
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithBaseEmployeeDeduction()
+    {
+        var paycheckCalculator = GetPaycheckCalculator();
+
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1_234_567 });
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().Contain(d => d.Amount == 1_000m && d.Type == DeductionType.Base);
+    }
+
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithoutAnyDependants_ShouldReturnPaycheckWithoutAnyDependantDeduction()
+    {
+        var paycheckCalculator = GetPaycheckCalculator();
+
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1_234_567 });
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().NotContain(d => d.Type == DeductionType.Dependent);
+    }
 }

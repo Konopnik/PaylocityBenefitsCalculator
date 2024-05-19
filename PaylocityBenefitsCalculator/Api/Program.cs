@@ -1,6 +1,7 @@
 using Api.Dtos;
 using Api.Repositories;
 using Api.Services;
+using Api.Settings;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ModelToDtosMapper>();
 
+builder.Services.AddSettings();
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 

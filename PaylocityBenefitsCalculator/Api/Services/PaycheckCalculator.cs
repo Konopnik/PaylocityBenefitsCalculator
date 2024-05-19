@@ -1,9 +1,17 @@
 using Api.Models;
+using Api.Settings;
 
 namespace Api.Services;
 
 public class PaycheckCalculator : IPaycheckCalculator
 {
+    private readonly PaycheckCalculatorSettings _settings;
+
+    public PaycheckCalculator(PaycheckCalculatorSettings settings)
+    {
+        _settings = settings;
+    }
+
     public async Task<Paycheck> Calculate(int year, int number, Employee employee)
     {
         //note: starting with just simple implementation to return paycheck with 0 amounts to have working endpoint
@@ -15,12 +23,14 @@ public class PaycheckCalculator : IPaycheckCalculator
             GrossAmount = CalculateGrossAmount(employee.Salary),
             NetAmount = 0,
         };
-        paycheck.Deductions.Add(new Deduction() { Amount = 1000, Type = DeductionType.Base});
+
+        paycheck.Deductions.Add(new Deduction { Amount = _settings.BaseEmployeeCostPerMonth, Type = DeductionType.Base });
+
         return paycheck;
     }
 
     private decimal CalculateGrossAmount(decimal employeeSalary)
     {
-        return employeeSalary / 26m;
+        return employeeSalary / _settings.PaycheckCountPerYear;
     }
 }

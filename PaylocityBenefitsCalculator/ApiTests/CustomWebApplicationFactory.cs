@@ -9,7 +9,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Api.Program>
 {
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        
         builder.UseEnvironment("Test");
 
         return base.CreateHost(builder);
