@@ -36,6 +36,6 @@ public class PaycheckIntegrationTests : IntegrationTest
     public async Task WhenAskedForPaycheckForNonExistingEmployee_ShouldReturnNotFound()
     {
         var response = await HttpClient.GetAsync($"/api/v1/paycheck/2024/2/employee/{int.MinValue}");
-        await response.ShouldReturn(HttpStatusCode.NotFound);
+        await response.ShouldReturnErrorCode(HttpStatusCode.NotFound, "EMPLOYEE_NOT_FOUND");
     }
 }

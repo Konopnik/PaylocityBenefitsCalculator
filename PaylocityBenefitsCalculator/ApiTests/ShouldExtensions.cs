@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Api.Models;
+using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -13,6 +14,14 @@ internal static class ShouldExtensions
     {
         AssertCommonResponseParts(response, expectedStatusCode);
         return Task.CompletedTask;
+    }
+    
+    public static async Task ShouldReturnErrorCode(this HttpResponseMessage response, HttpStatusCode expectedStatusCode, string expectedErrorCode)
+    {
+        AssertCommonResponseParts(response, expectedStatusCode);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<object>>(await response.Content.ReadAsStringAsync());
+        apiResponse.Success.Should().BeFalse();
+        apiResponse.Error.Should().Be(expectedErrorCode);
     }
     
     public static async Task ShouldReturn<T>(this HttpResponseMessage response, HttpStatusCode expectedStatusCode, T expectedContent)

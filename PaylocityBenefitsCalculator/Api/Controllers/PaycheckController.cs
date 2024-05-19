@@ -1,4 +1,5 @@
 using Api.Dtos;
+using Api.Dtos.Employee;
 using Api.Dtos.Paycheck;
 using Api.Models;
 using Api.Repositories;
@@ -42,7 +43,10 @@ public class PaycheckController : ControllerBase
         var employee = await _employeeRepository.Find(employeeId, ct);
         if (employee == null)
         {
-            return NotFound();
+            return NotFound(
+                ApiResponse<GetEmployeeDto>.CreateError(
+                        $"Employee {employeeId} not found => paycheck cannot be calculated.", 
+                        ErrorCodes.EmployeeNotFound));
         }
 
         var paycheck = await _paycheckCalculator.Calculate(year, paycheckNumber, employee);

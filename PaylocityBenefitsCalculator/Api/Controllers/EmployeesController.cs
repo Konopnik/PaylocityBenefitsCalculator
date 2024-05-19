@@ -27,7 +27,13 @@ public class EmployeesController : ControllerBase
         var employee = await _repository.Find(id, ct);
         if (employee == null)
         {
-            return NotFound();
+            //node: return not found with error code and message which can help clint to understand what happened 
+            // we can move strings to resources file if we would like to show it on the client side UI and we would like this service to be responsible for the localized text.
+            // I decided not to do it for this emxaple.
+            return NotFound(
+                ApiResponse<GetEmployeeDto>.CreateError(
+                    $"Employee {id} not found in the storage.", 
+                    ErrorCodes.EmployeeNotFound));
         }
         
         var result = new ApiResponse<GetEmployeeDto>
