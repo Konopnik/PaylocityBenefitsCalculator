@@ -5,6 +5,9 @@ namespace ApiTests;
 
 public class IntegrationTest : IDisposable
 {
+    // I decided to use test approach with WebApplicationFactory => this way I can run the tests without running API separately
+    // I used custom implementation of it right away, because I wanted to have more control over the environment
+    private readonly CustomWebApplicationFactory _factory;
     private HttpClient? _httpClient;
 
     protected HttpClient HttpClient
@@ -13,11 +16,7 @@ public class IntegrationTest : IDisposable
         {
             if (_httpClient == default)
             {
-                _httpClient = new HttpClient
-                {
-                    //task: update your port if necessary
-                    BaseAddress = new Uri("https://localhost:7124")
-                };
+                _httpClient = _factory.CreateClient();
                 _httpClient.DefaultRequestHeaders.Add("accept", "text/plain");
             }
 
@@ -25,9 +24,15 @@ public class IntegrationTest : IDisposable
         }
     }
 
+    public IntegrationTest()
+    {
+        _factory = new CustomWebApplicationFactory();
+        _httpClient = _factory.CreateClient();
+    }
+    
     public void Dispose()
     {
         HttpClient.Dispose();
+        _factory.Dispose();
     }
 }
-
