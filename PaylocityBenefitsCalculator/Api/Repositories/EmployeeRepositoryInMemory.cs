@@ -79,4 +79,9 @@ public class EmployeeRepositoryInMemory : IEmployeeRepository
     {
         return await Task.FromResult(_employeesStorage.AsEnumerable());
     }
+
+    public Task<Employee?> Find(int id, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_employeesStorage.FirstOrDefault(e => e.Id == id));
+    }
 }

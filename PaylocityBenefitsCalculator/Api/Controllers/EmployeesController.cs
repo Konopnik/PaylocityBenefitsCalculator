@@ -23,9 +23,21 @@ public class EmployeesController : ControllerBase
 
     [SwaggerOperation(Summary = "Get employee by id")]
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> Get(int id)
+    public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> Get(int id, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var employee = await _repository.Find(id, ct);
+        if (employee == null)
+        {
+            return NotFound();
+        }
+        
+        var result = new ApiResponse<GetEmployeeDto>
+        {
+            Data = _mapper.EmployeeToGetEmployeeDto(employee),
+            Success = true
+        };
+
+        return result;
     }
 
     [SwaggerOperation(Summary = "Get all employees")]
