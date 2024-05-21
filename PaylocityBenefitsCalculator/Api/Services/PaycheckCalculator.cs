@@ -41,6 +41,15 @@ public class PaycheckCalculator : IPaycheckCalculator
             Type = DeductionType.Base
         };
 
+        if (employee.Salary > _settings.HighSalaryThreshold)
+        {
+            yield return new Deduction
+            {
+                Amount = _settings.HighSalaryCostPercentagePerYear / 100m * employee.Salary / _settings.PaycheckCountPerYear,
+                Type = DeductionType.HighSalary
+            };
+        }
+
         foreach (var dependent in employee.Dependents)
         {
             yield return new Deduction

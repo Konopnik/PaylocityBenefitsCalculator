@@ -74,7 +74,7 @@ public class PaycheckCalculatorTests
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1_234_567 });
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 70_000 });
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(1);
@@ -88,7 +88,7 @@ public class PaycheckCalculatorTests
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1_234_567 });
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 70_000 });
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().NotContain(d => d.Type == DeductionType.Dependent);
@@ -102,7 +102,7 @@ public class PaycheckCalculatorTests
 
         var employee = new Employee()
         {
-            Salary = 1_234_567,
+            Salary = 70_000,
             Dependents = new List<Dependent>
             {
                 new()
@@ -133,4 +133,66 @@ public class PaycheckCalculatorTests
             .And
             .AllSatisfy(a => a.Amount.Should().BeApproximately(276.92m, 0.01m));
     }    
+    
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithHighSalary_ShouldReturnPaycheckWithHighSalaryDeduction()
+    {
+        var paycheckCalculator = GetPaycheckCalculator();
+
+        var employee = new Employee()
+        {
+            Salary = 100_000
+        };
+        
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().HaveCount(2);
+        var deduction = paycheck.Deductions.Single(a => a.Type == DeductionType.HighSalary);
+        deduction.Amount.Should().BeApproximately(76.92m, 0.01m);
+    }
+    
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheckWithSalaryLowerOrEqualToHighSalaryThreshold_ShouldReturnPaycheckWithoutHighSalaryDeduction()
+    {
+        var paycheckCalculatorSettings = new PaycheckCalculatorSettings() { HighSalaryThreshold = 10000};
+        var paycheckCalculator = GetPaycheckCalculator( paycheckCalculatorSettings);
+
+        var employee = new Employee()
+        {
+            Salary = paycheckCalculatorSettings.HighSalaryThreshold
+        };
+        
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().NotContain(a => a.Type == DeductionType.HighSalary);
+
+        var employee2 = new Employee()
+        {
+            Salary = paycheckCalculatorSettings.HighSalaryThreshold - 1
+        };
+        
+        paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().NotContain(a => a.Type == DeductionType.HighSalary);
+    }
+
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheckWithSalaryHigherThanHighSalaryThreshold_ShouldReturnPaycheckWithoutHighSalaryDeduction()
+    {
+        var paycheckCalculatorSettings = new PaycheckCalculatorSettings() { HighSalaryThreshold = 10000};
+        var paycheckCalculator = GetPaycheckCalculator( paycheckCalculatorSettings);
+
+        var employee = new Employee()
+        {
+            Salary = paycheckCalculatorSettings.HighSalaryThreshold + 1
+        };
+        
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().Contain(a => a.Type == DeductionType.HighSalary);
+    }
 }
