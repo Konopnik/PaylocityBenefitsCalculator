@@ -37,7 +37,7 @@ public class PaycheckCalculator : IPaycheckCalculator
     {
         yield return new Deduction
         {
-            Amount = _settings.BaseEmployeeCostPerMonth * 12m / _settings.PaycheckCountPerYear,
+            Amount = ConvertMonthlyAmountToAmountPerPaycheck(_settings.BaseEmployeeCostPerMonth),
             Type = DeductionType.Base
         };
 
@@ -45,10 +45,15 @@ public class PaycheckCalculator : IPaycheckCalculator
         {
             yield return new Deduction
             {
-                Amount = _settings.DependentCostPerMonth * 12m / _settings.PaycheckCountPerYear,
+                Amount = ConvertMonthlyAmountToAmountPerPaycheck(_settings.DependentCostPerMonth),
                 Type = DeductionType.Dependent
             };
         }
+    }
+
+    private decimal ConvertMonthlyAmountToAmountPerPaycheck(decimal monthlyAmount)
+    {
+        return monthlyAmount * 12m / _settings.PaycheckCountPerYear;
     }
 
     private decimal CalculateGrossAmount(decimal employeeSalary)
