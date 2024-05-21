@@ -24,8 +24,8 @@ public class PaycheckCalculator : IPaycheckCalculator
             NetAmount = 0,
         };
 
-        paycheck.Deductions.Add(new Deduction { Amount = _settings.BaseEmployeeCostPerMonth, Type = DeductionType.Base });
-
+        paycheck.Deductions.Add(new Deduction { Amount = _settings.BaseEmployeeCostPerMonth * 12m / _settings.PaycheckCountPerYear, Type = DeductionType.Base });
+        
         return paycheck;
     }
 

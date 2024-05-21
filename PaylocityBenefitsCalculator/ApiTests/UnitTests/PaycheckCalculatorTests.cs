@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Api.Models;
 using Api.Services;
@@ -16,7 +17,7 @@ public class PaycheckCalculatorTests
 
     private static PaycheckCalculator GetPaycheckCalculator()
     {
-        return GetPaycheckCalculator( new PaycheckCalculatorSettings());
+        return GetPaycheckCalculator(new PaycheckCalculatorSettings());
     }
 
     [Fact]
@@ -74,7 +75,10 @@ public class PaycheckCalculatorTests
         var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 1_234_567 });
 
         paycheck.Should().NotBeNull();
-        paycheck.Deductions.Should().Contain(d => d.Amount == 1_000m && d.Type == DeductionType.Base);
+        paycheck.Deductions.Should().HaveCount(1);
+        var dedustion = paycheck.Deductions.First();
+        dedustion.Amount.Should().BeApproximately(461.53m, 0.1m);
+        dedustion.Type.Should().Be(DeductionType.Base);
     }
 
     [Fact]
