@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Models;
@@ -91,4 +93,44 @@ public class PaycheckCalculatorTests
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().NotContain(d => d.Type == DeductionType.Dependent);
     }
+    
+
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithDependants_ShouldReturnPaycheckWithDependantDeductions()
+    {
+        var paycheckCalculator = GetPaycheckCalculator();
+
+        var employee = new Employee()
+        {
+            Salary = 1_234_567,
+            Dependents = new List<Dependent>
+            {
+                new()
+                {
+                    Relationship = Relationship.Child,
+                    DateOfBirth = DateTime.Now.AddYears(-5)
+                },
+                new()
+                {
+                    Relationship = Relationship.Child,
+                    DateOfBirth = DateTime.Now.AddYears(-8)
+                },
+                new()
+                {
+                    Relationship = Relationship.Spouse,
+                    DateOfBirth = DateTime.Now.AddYears(-35)
+                }
+            }
+        };
+        
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+
+        paycheck.Should().NotBeNull();
+        paycheck.Deductions.Should().HaveCount(4);
+        paycheck.Deductions.Where(a => a.Type == DeductionType.Dependent)
+            .Should()
+            .HaveSameCount(employee.Dependents)
+            .And
+            .AllSatisfy(a => a.Amount.Should().BeApproximately(276.92m, 0.01m));
+    }    
 }

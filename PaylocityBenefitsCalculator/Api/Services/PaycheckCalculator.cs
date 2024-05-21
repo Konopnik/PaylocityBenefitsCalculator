@@ -1,3 +1,4 @@
+using System.Collections;
 using Api.Models;
 using Api.Settings;
 
@@ -24,9 +25,30 @@ public class PaycheckCalculator : IPaycheckCalculator
             NetAmount = 0,
         };
 
-        paycheck.Deductions.Add(new Deduction { Amount = _settings.BaseEmployeeCostPerMonth * 12m / _settings.PaycheckCountPerYear, Type = DeductionType.Base });
+        foreach (var deduction in GetDeductions(employee))
+        {
+            paycheck.Deductions.Add(deduction);
+        }
         
         return paycheck;
+    }
+
+    private IEnumerable<Deduction> GetDeductions(Employee employee)
+    {
+        yield return new Deduction
+        {
+            Amount = _settings.BaseEmployeeCostPerMonth * 12m / _settings.PaycheckCountPerYear,
+            Type = DeductionType.Base
+        };
+
+        foreach (var dependent in employee.Dependents)
+        {
+            yield return new Deduction
+            {
+                Amount = _settings.DependentCostPerMonth * 12m / _settings.PaycheckCountPerYear,
+                Type = DeductionType.Dependent
+            };
+        }
     }
 
     private decimal CalculateGrossAmount(decimal employeeSalary)

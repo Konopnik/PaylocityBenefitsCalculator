@@ -8,6 +8,6 @@ public class GetPaycheckDto
     public int Number { get; set; }
     public GetEmployeeDto Employee { get; set; }
     public decimal GrossAmount { get; set; }
-    public int DeductionsAmount { get; set; }
+    public decimal DeductionsAmount { get; set; }
     public decimal NetAmount { get; set; }
 }
