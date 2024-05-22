@@ -12,10 +12,10 @@ namespace Api.Presentation;
 [Mapper]
 public partial class ModelToDtosMapper
 {
-    public partial GetEmployeeDto EmployeeToGetEmployeeDto(Employee employee);
+    public partial GetEmployeeDto ToGetEmployeeDto(Employee employee);
     
     [MapProperty(nameof(Paycheck.Deductions), nameof(GetPaycheckDto.DeductionsAmount), Use = nameof(MapDeductionsAmount))]
-    public partial GetPaycheckDto PaycheckToGetPaycheckDto(Paycheck paycheck);
+    public partial GetPaycheckDto ToGetPaycheckDto(Paycheck paycheck);
     
     [UserMapping(Default = false)]
     public decimal MapDeductionsAmount(ICollection<Deduction> deductions)
@@ -23,7 +23,7 @@ public partial class ModelToDtosMapper
         return deductions.Sum(d => d.Amount);
     }
     
-    public partial List<GetEmployeeDto> EmployeesToGetEmployeeDtosList(IEnumerable<Employee> employee);
-    public partial GetDependentDto DependentToGetDependentDto(Dependent dependent);
-    public partial List<GetDependentDto> DependentToGetDependentDtosList(IEnumerable<Dependent> dependents);
+    public partial List<GetEmployeeDto> ToGetEmployeeDtoList(IEnumerable<Employee> employee);
+    public partial GetDependentDto ToGetDependentDto(Dependent dependent);
+    public partial List<GetDependentDto> ToGetDependentDtoList(IEnumerable<Dependent> dependents);
 }

@@ -27,7 +27,7 @@ public class EmployeesController : ControllerBase
         return employeeResult.Match<ActionResult<ApiResponse<GetEmployeeDto>>>(
             e => new ApiResponse<GetEmployeeDto>
             {
-                Data = _mapper.EmployeeToGetEmployeeDto(e),
+                Data = _mapper.ToGetEmployeeDto(e),
                 Success = true
             },
             //node: return not found with error code and message which can help clint to understand what happened 
@@ -48,7 +48,7 @@ public class EmployeesController : ControllerBase
 
         var result = new ApiResponse<List<GetEmployeeDto>>
         {
-            Data = _mapper.EmployeesToGetEmployeeDtosList(employees),
+            Data = _mapper.ToGetEmployeeDtoList(employees),
             Success = true
         };
 

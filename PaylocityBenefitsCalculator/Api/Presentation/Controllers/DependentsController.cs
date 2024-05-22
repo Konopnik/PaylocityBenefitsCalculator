@@ -27,7 +27,7 @@ public class DependentsController : ControllerBase
         return findResult.Match<ActionResult<ApiResponse<GetDependentDto>>>(
             d => new ApiResponse<GetDependentDto>
             {
-                Data = _mapper.DependentToGetDependentDto(d),
+                Data = _mapper.ToGetDependentDto(d),
                 Success = true
             },
             error => NotFound(
@@ -45,7 +45,7 @@ public class DependentsController : ControllerBase
         
         var result = new ApiResponse<List<GetDependentDto>>
         {
-            Data = _mapper.DependentToGetDependentDtosList(dependents),
+            Data = _mapper.ToGetDependentDtoList(dependents),
             Success = true
         };
 

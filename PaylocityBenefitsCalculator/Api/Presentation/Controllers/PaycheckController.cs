@@ -45,7 +45,7 @@ public class PaycheckController : ControllerBase
                 var paycheck = _paycheckCalculator.Calculate(year, paycheckNumber, e);
                 var result = new ApiResponse<GetPaycheckDto>
                 {
-                    Data =  _mapper.PaycheckToGetPaycheckDto(paycheck),
+                    Data =  _mapper.ToGetPaycheckDto(paycheck),
                     Success = true
                 };
 
@@ -54,7 +54,7 @@ public class PaycheckController : ControllerBase
             },
             error => NotFound(
                 ApiResponse<GetPaycheckDto>.CreateError(
-                    $"Employee {employeeId} not found => paycheck cannot be calculated.", 
+                    $"Employee {employeeId} not found => paycheck cannot be calculated.",
                     ErrorCodes.EmployeeNotFound))
         );
     }
