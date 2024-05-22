@@ -28,22 +28,22 @@ public class PaycheckCalculatorTests
     }
 
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnSomePaycheck()
+    public void WhenAskedForCalculationOfPaycheck_ShouldReturnSomePaycheck()
     {
         var paycheckCalculator = GetPaycheckCalculator();
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee());
+        var paycheck = paycheckCalculator.Calculate(2024, 1, new Employee());
 
         paycheck.Should().NotBeNull();
     }
 
     [Theory]
     [MemberData(nameof(GrossAmountTestCases))]
-    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectGrossAmount(
+    public void WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectGrossAmount(
         decimal salary, decimal expectedGrossAmount)
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
+        var paycheck = paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
         paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, Precision);
@@ -58,11 +58,11 @@ public class PaycheckCalculatorTests
 
     [Theory]
     [MemberData(nameof(GrossAmountWithConfiguredPaycheckCountTestCases))]
-    public async Task WhenAskedForCalculationOfPaycheckWithChangedPaycheckCount_ShouldReturnPaycheckWithCorrectGrossAmount(int paycheckCountPerYear, decimal salary, decimal expectedGrossAmount)
+    public void WhenAskedForCalculationOfPaycheckWithChangedPaycheckCount_ShouldReturnPaycheckWithCorrectGrossAmount(int paycheckCountPerYear, decimal salary, decimal expectedGrossAmount)
     {
         var paycheckCalculator = GetPaycheckCalculator(new PaycheckCalculatorSettings() { PaycheckCountPerYear = paycheckCountPerYear });
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
+        var paycheck = paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
         paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, Precision);
@@ -75,11 +75,11 @@ public class PaycheckCalculatorTests
     };
 
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithBaseEmployeeDeduction()
+    public void WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithBaseEmployeeDeduction()
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 70_000 });
+        var paycheck = paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 70_000 });
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(1);
@@ -89,18 +89,18 @@ public class PaycheckCalculatorTests
     }
 
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithoutAnyDependants_ShouldReturnPaycheckWithoutAnyDependantDeduction()
+    public void WhenAskedForCalculationOfPaycheckForEmployeeWithoutAnyDependants_ShouldReturnPaycheckWithoutAnyDependantDeduction()
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 70_000 });
+        var paycheck = paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = 70_000 });
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().NotContain(d => d.Type == DeductionType.Dependent);
     }
     
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithDependants_ShouldReturnPaycheckWithDependantDeductions()
+    public void WhenAskedForCalculationOfPaycheckForEmployeeWithDependants_ShouldReturnPaycheckWithDependantDeductions()
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
@@ -127,7 +127,7 @@ public class PaycheckCalculatorTests
             }
         };
         
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        var paycheck = paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(4);
@@ -139,7 +139,7 @@ public class PaycheckCalculatorTests
     }    
     
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithDependantOlderThanThreshold_ShouldReturnPaycheckWithAdditionalDependantDeduction()
+    public void WhenAskedForCalculationOfPaycheckForEmployeeWithDependantOlderThanThreshold_ShouldReturnPaycheckWithAdditionalDependantDeduction()
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
@@ -156,7 +156,7 @@ public class PaycheckCalculatorTests
             }
         };
         
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        var paycheck = paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(2);
@@ -169,7 +169,7 @@ public class PaycheckCalculatorTests
     
     [Theory]
     [MemberData(nameof(A))]
-    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithDependantsWithVariousDateOfBirth_ShouldReturnPaycheckWithCorrectDependentDeduction(DateTime dateOfBirth, int year, int paycheckNumber, decimal expectedDeductionAmount)
+    public void WhenAskedForCalculationOfPaycheckForEmployeeWithDependantsWithVariousDateOfBirth_ShouldReturnPaycheckWithCorrectDependentDeduction(DateTime dateOfBirth, int year, int paycheckNumber, decimal expectedDeductionAmount)
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
@@ -186,7 +186,7 @@ public class PaycheckCalculatorTests
             }
         };
         
-        var paycheck = await paycheckCalculator.Calculate(year, paycheckNumber, employee);
+        var paycheck = paycheckCalculator.Calculate(year, paycheckNumber, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(2);
@@ -210,7 +210,7 @@ public class PaycheckCalculatorTests
     };
     
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithHighSalary_ShouldReturnPaycheckWithHighSalaryDeduction()
+    public void WhenAskedForCalculationOfPaycheckForEmployeeWithHighSalary_ShouldReturnPaycheckWithHighSalaryDeduction()
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
@@ -219,7 +219,7 @@ public class PaycheckCalculatorTests
             Salary = 100_000
         };
         
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        var paycheck = paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(2);
@@ -228,7 +228,7 @@ public class PaycheckCalculatorTests
     }
     
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckWithSalaryLowerOrEqualToHighSalaryThreshold_ShouldReturnPaycheckWithoutHighSalaryDeduction()
+    public void WhenAskedForCalculationOfPaycheckWithSalaryLowerOrEqualToHighSalaryThreshold_ShouldReturnPaycheckWithoutHighSalaryDeduction()
     {
         var paycheckCalculatorSettings = new PaycheckCalculatorSettings() { HighSalaryThreshold = 10000};
         var paycheckCalculator = GetPaycheckCalculator( paycheckCalculatorSettings);
@@ -238,7 +238,7 @@ public class PaycheckCalculatorTests
             Salary = paycheckCalculatorSettings.HighSalaryThreshold
         };
         
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        var paycheck = paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().NotContain(a => a.Type == DeductionType.HighSalary);
@@ -248,14 +248,14 @@ public class PaycheckCalculatorTests
             Salary = paycheckCalculatorSettings.HighSalaryThreshold - 1
         };
         
-        paycheck = await paycheckCalculator.Calculate(2024, 1, employee2);
+        paycheck = paycheckCalculator.Calculate(2024, 1, employee2);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().NotContain(a => a.Type == DeductionType.HighSalary);
     }
 
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckWithSalaryHigherThanHighSalaryThreshold_ShouldReturnPaycheckWithoutHighSalaryDeduction()
+    public void WhenAskedForCalculationOfPaycheckWithSalaryHigherThanHighSalaryThreshold_ShouldReturnPaycheckWithoutHighSalaryDeduction()
     {
         var paycheckCalculatorSettings = new PaycheckCalculatorSettings() { HighSalaryThreshold = 10000};
         var paycheckCalculator = GetPaycheckCalculator( paycheckCalculatorSettings);
@@ -265,7 +265,7 @@ public class PaycheckCalculatorTests
             Salary = paycheckCalculatorSettings.HighSalaryThreshold + 1
         };
         
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        var paycheck = paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().Contain(a => a.Type == DeductionType.HighSalary);
@@ -274,12 +274,12 @@ public class PaycheckCalculatorTests
 
     [Theory]
     [MemberData(nameof(NetAmountTestCases))]
-    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectNetAmount(
+    public void WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectNetAmount(
         decimal salary, decimal expectedGrossAmount)
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
+        var paycheck = paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
         paycheck.NetAmount.Should().BeApproximately(expectedGrossAmount, Precision);
@@ -294,7 +294,7 @@ public class PaycheckCalculatorTests
  
     
     [Fact]
-    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithDependants_ShouldReturnPaycheckWithCorrectNetAmount()
+    public void WhenAskedForCalculationOfPaycheckForEmployeeWithDependants_ShouldReturnPaycheckWithCorrectNetAmount()
     {
         var paycheckCalculator = GetPaycheckCalculator();
 
@@ -321,7 +321,7 @@ public class PaycheckCalculatorTests
             }
         };
         
-        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        var paycheck = paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
         paycheck.NetAmount.Should().BeApproximately(1400 , Precision);

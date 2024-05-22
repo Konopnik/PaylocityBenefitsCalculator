@@ -13,7 +13,7 @@ public class PaycheckCalculator : IPaycheckCalculator
         _settings = settings;
     }
 
-    public async Task<Paycheck> Calculate(int year, int number, Employee employee)
+    public Paycheck Calculate(int year, int number, Employee employee)
     {
         //note: starting with just simple implementation to return paycheck with 0 amounts to have working endpoint
         var paycheck = new Paycheck()

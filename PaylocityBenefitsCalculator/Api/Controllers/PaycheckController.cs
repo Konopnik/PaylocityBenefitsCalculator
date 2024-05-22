@@ -49,7 +49,7 @@ public class PaycheckController : ControllerBase
                         ErrorCodes.EmployeeNotFound));
         }
 
-        var paycheck = await _paycheckCalculator.Calculate(year, paycheckNumber, employee);
+        var paycheck = _paycheckCalculator.Calculate(year, paycheckNumber, employee);
         
         var result = new ApiResponse<GetPaycheckDto>
         {
