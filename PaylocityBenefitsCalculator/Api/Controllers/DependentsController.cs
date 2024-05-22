@@ -19,25 +19,25 @@ public class DependentsController : ControllerBase
         _repository = repository;
         _mapper = mapper;
     }
-    
-    
+
+
     [SwaggerOperation(Summary = "Get dependent by id")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<GetDependentDto>>> Get(int id, CancellationToken ct)
     {
-        var dependent = await _repository.Find(id, ct);
-        if (dependent == null)
-        {
-            return NotFound();
-        }
-        
-        var result = new ApiResponse<GetDependentDto>
-        {
-            Data = _mapper.DependentToGetDependentDto(dependent),
-            Success = true
-        };
-
-        return result;    }
+        var findResult = await _repository.Find(id, ct);
+        return findResult.Match<ActionResult<ApiResponse<GetDependentDto>>>(
+            d => new ApiResponse<GetDependentDto>
+            {
+                Data = _mapper.DependentToGetDependentDto(d),
+                Success = true
+            },
+            error => NotFound(
+                ApiResponse<GetDependentDto>.CreateError(
+                    $"Dependent {id} not found in the storage.",
+                    ErrorCodes.DependentNotFound))
+        );
+    }
 
     [SwaggerOperation(Summary = "Get all dependents")]
     [HttpGet("")]

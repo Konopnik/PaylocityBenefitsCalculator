@@ -40,23 +40,24 @@ public class PaycheckController : ControllerBase
         int employeeId,
         CancellationToken ct)
     {
-        var employee = await _employeeRepository.Find(employeeId, ct);
-        if (employee == null)
-        {
-            return NotFound(
+        var employeeResult = await _employeeRepository.Find(employeeId, ct);
+        return employeeResult.Match<ActionResult<ApiResponse<GetPaycheckDto>>>(
+            e =>
+            {
+                var paycheck = _paycheckCalculator.Calculate(year, paycheckNumber, e);
+                var result = new ApiResponse<GetPaycheckDto>
+                {
+                    Data =  _mapper.PaycheckToGetPaycheckDto(paycheck),
+                    Success = true
+                };
+
+                return result;
+                
+            },
+            error => NotFound(
                 ApiResponse<GetEmployeeDto>.CreateError(
-                        $"Employee {employeeId} not found => paycheck cannot be calculated.", 
-                        ErrorCodes.EmployeeNotFound));
-        }
-
-        var paycheck = _paycheckCalculator.Calculate(year, paycheckNumber, employee);
-        
-        var result = new ApiResponse<GetPaycheckDto>
-        {
-            Data =  _mapper.PaycheckToGetPaycheckDto(paycheck),
-            Success = true
-        };
-
-        return await Task.FromResult(result);
+                    $"Employee {employeeId} not found => paycheck cannot be calculated.", 
+                    ErrorCodes.EmployeeNotFound))
+        );
     }
 }
