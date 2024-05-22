@@ -22,7 +22,6 @@ public class PaycheckCalculator : IPaycheckCalculator
             Employee = employee,
             Number = number,
             GrossAmount = CalculateGrossAmount(employee.Salary),
-            NetAmount = 0,
         };
 
         foreach (var deduction in GetDeductions(year, number, employee))
@@ -30,6 +29,7 @@ public class PaycheckCalculator : IPaycheckCalculator
             paycheck.Deductions.Add(deduction);
         }
         
+        paycheck.NetAmount = paycheck.GrossAmount - paycheck.Deductions.Sum(d => d.Amount);
         return paycheck;
     }
 

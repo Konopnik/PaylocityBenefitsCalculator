@@ -244,7 +244,7 @@ public class PaycheckCalculatorTests
             Salary = paycheckCalculatorSettings.HighSalaryThreshold - 1
         };
         
-        paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+        paycheck = await paycheckCalculator.Calculate(2024, 1, employee2);
 
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().NotContain(a => a.Type == DeductionType.HighSalary);
@@ -266,4 +266,61 @@ public class PaycheckCalculatorTests
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().Contain(a => a.Type == DeductionType.HighSalary);
     }
+    
+
+    [Theory]
+    [MemberData(nameof(NetAmountTestCases))]
+    public async Task WhenAskedForCalculationOfPaycheck_ShouldReturnPaycheckWithCorrectNetAmount(
+        decimal salary, decimal expectedGrossAmount)
+    {
+        var paycheckCalculator = GetPaycheckCalculator();
+
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
+
+        paycheck.Should().NotBeNull();
+        paycheck.NetAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+    }
+
+    public static TheoryData<decimal, decimal> NetAmountTestCases = new()
+    {
+        { 100_000m, 3307.69m },
+        { 80_000m, 2615.38m },
+        { 50_000m, 1461.54m },
+    };
+ 
+    
+    [Fact]
+    public async Task WhenAskedForCalculationOfPaycheckForEmployeeWithDependants_ShouldReturnPaycheckWithCorrectNetAmount()
+    {
+        var paycheckCalculator = GetPaycheckCalculator();
+
+        var employee = new Employee()
+        {
+            Salary = 70_000,
+            Dependents = new List<Dependent>
+            {
+                new()
+                {
+                    Relationship = Relationship.Child,
+                    DateOfBirth = DateTime.Now.AddYears(-5)
+                },
+                new()
+                {
+                    Relationship = Relationship.Child,
+                    DateOfBirth = DateTime.Now.AddYears(-8)
+                },
+                new()
+                {
+                    Relationship = Relationship.Spouse,
+                    DateOfBirth = DateTime.Now.AddYears(-35)
+                }
+            }
+        };
+        
+        var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
+
+        paycheck.Should().NotBeNull();
+        paycheck.NetAmount.Should().BeApproximately(1400 , 0.01m);
+    }    
+
 }

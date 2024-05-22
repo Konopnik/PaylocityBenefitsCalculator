@@ -27,7 +27,7 @@ public class PaycheckIntegrationTests : IntegrationTest
             Number = 2,
             GrossAmount = 2_900.8073076923076923076923077m,
             DeductionsAmount = 461.53846153846153846153846154m,
-            NetAmount = 0,
+            NetAmount = 2439.2688461538461538461538462m,
         };
         await response.ShouldReturn(HttpStatusCode.OK, paycheck);
     }    
