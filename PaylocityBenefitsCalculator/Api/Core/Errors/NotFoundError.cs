@@ -1,6 +1,3 @@
 namespace Api.Core.Errors;
 
-public class NotFoundError
-{
-    
-}
+public record NotFoundError;

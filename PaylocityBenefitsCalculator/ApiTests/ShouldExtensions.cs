@@ -32,6 +32,13 @@ internal static class ShouldExtensions
         Assert.True(apiResponse.Success);
         Assert.Equal(JsonConvert.SerializeObject(expectedContent), JsonConvert.SerializeObject(apiResponse.Data));
     }
+    
+    public static async Task<ApiResponse<T>> ShouldReturn<T>(this HttpResponseMessage response, HttpStatusCode expectedStatusCode)
+    {
+        await response.ShouldReturn(expectedStatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+        return JsonConvert.DeserializeObject<ApiResponse<T>>(await response.Content.ReadAsStringAsync());
+    }
 
     private static void AssertCommonResponseParts(this HttpResponseMessage response, HttpStatusCode expectedStatusCode)
     {

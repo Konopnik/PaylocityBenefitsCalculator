@@ -1,6 +1,7 @@
 using Api.Core;
 using Api.Infrastructure;
 using Api.Presentation;
+using Api.UseCases;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ builder.Services.AddSingleton<ModelToDtosMapper>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
 builder.Services.AddCoreLayerServices();
+builder.Services.AddUseCasesLayerService();
 builder.Services.AddInfrastructureLayerServices(builder.Configuration);
 
 

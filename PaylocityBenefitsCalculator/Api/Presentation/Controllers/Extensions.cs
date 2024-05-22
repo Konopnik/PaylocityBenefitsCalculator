@@ -13,11 +13,11 @@ public static class Extensions
         string message, 
         string errorCode)
     {
-        return result.Match<ActionResult<ApiResponse<TOutput>>>(e => new ApiResponse<TOutput>
+        return result.Match<ActionResult<ApiResponse<TOutput>>>(e => new OkObjectResult(new ApiResponse<TOutput>
             {
                 Data = mapFunction.Invoke(e),
                 Success = true
-            },
+            }),
             error => new NotFoundObjectResult(ApiResponse<TOutput>.CreateError(message, errorCode)));
-    }    
+    }        
 }

@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Api.Core.Enums;
 using Api.Presentation.Dtos.Dependent;
 using Api.Presentation.Dtos.Employee;
+using Api.UseCases.Employees;
+using FluentAssertions;
 using Xunit;
 
 namespace ApiTests.IntegrationTests;
@@ -105,6 +108,43 @@ public class EmployeeIntegrationTests : IntegrationTest
     {
         var response = await HttpClient.GetAsync($"/api/v1/employees/{int.MinValue}");
         await response.ShouldReturnErrorCode(HttpStatusCode.NotFound, "EMPLOYEE_NOT_FOUND");
+    }
+
+    [Fact]
+    public async Task WhenAskedForCreateNewEmployee_EmployeeShouldBeCreated()
+    {
+        var newEmployee = new CreateEmployeeCommand("TestFN", "TestLN", 80000, new DateTime(2020, 1, 1),
+            new List<DependentDto>()
+            {
+                new DependentDto("ChildFN", "ChildLN", Relationship.Child),
+                new DependentDto("PartnerFN", "PartnerLN", Relationship.DomesticPartner)
+            });
+        var response = await HttpClient.PostAsJsonAsync($"/api/v1/employees/", newEmployee);
+        
+       var createdEmployee = await response.ShouldReturn<GetEmployeeDto>(HttpStatusCode.Created);
+       createdEmployee.Data.Should().NotBeNull();
+       createdEmployee.Data.Should().BeEquivalentTo(newEmployee);
+       
+       response = await HttpClient.GetAsync($"/api/v1/employees/{createdEmployee.Data!.Id}");
+
+       await response.ShouldReturn(HttpStatusCode.OK, createdEmployee.Data);
+    }    
+    
+    [Theory]
+    [InlineData(Relationship.DomesticPartner, Relationship.DomesticPartner)]
+    [InlineData(Relationship.Spouse, Relationship.DomesticPartner)]
+    [InlineData(Relationship.Spouse, Relationship.Spouse)]
+    public async Task WhenAskedForCreateNewEmployeeWithTwoPartnerDependents_ItShouldReturnValidationError(Relationship firstPartnerRelationship, Relationship secondPartnerRelationship)
+    {
+        var newEmployee = new CreateEmployeeCommand("TestFN", "TestLN", 80000, new DateTime(2020, 1, 1),
+            new List<DependentDto>()
+            {
+                new DependentDto("FirstPartnerFN", "FirstPartnerLN", firstPartnerRelationship),
+                new DependentDto("SecondPartnerFN", "SecondPartnerLN", secondPartnerRelationship)
+            });
+        var response = await HttpClient.PostAsJsonAsync($"/api/v1/employees/", newEmployee);
+        
+       await response.ShouldReturnErrorCode(HttpStatusCode.BadRequest, "VALIDATION_ERROR");
     }
 }
 

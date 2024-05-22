@@ -25,6 +25,13 @@ public class EmployeeRepository(DataContext dataContext) : IEmployeeRepository
         return employee;
     }
 
+    public async Task<Employee> Add(Employee employee, CancellationToken cancellationToken)
+    {
+        dataContext.Employees.Add(employee);
+        await dataContext.SaveChangesAsync(cancellationToken);
+        return employee;
+    }
+
     private IQueryable<Employee> GetEmployeesWithDependentsAsNoTracking()
     {
         return dataContext.Employees.Include(e=>e.Dependents).AsNoTracking();

@@ -10,4 +10,6 @@ internal static class ErrorCodes
     
     //note: would be returned if paycheck number is less than 1 or greater than 26 if we would sanitize input on the server side
     public static readonly string InvalidPaycheckNumber = "INVALID_PAYCHECK_NUMBER"; 
+
+    public static readonly string ValidationError = "VALIDATION_ERROR"; 
 }
