@@ -13,6 +13,10 @@ namespace ApiTests.UnitTests;
 // note: I used TDD approach for implementation of PaycheckCalculator - see commits history
 public class PaycheckCalculatorTests
 {
+    private const decimal ExpectedDependentCostWithAdditionalCost = 369.23m;
+    private const decimal ExpectedBaseDependentCost = 276.92m;
+    private const decimal Precision = 0.01m;
+
     private static PaycheckCalculator GetPaycheckCalculator(PaycheckCalculatorSettings settings)
     {
         return new PaycheckCalculator(settings);
@@ -42,7 +46,7 @@ public class PaycheckCalculatorTests
         var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
-        paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+        paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, Precision);
     }
 
     public static TheoryData<decimal, decimal> GrossAmountTestCases = new()
@@ -61,7 +65,7 @@ public class PaycheckCalculatorTests
         var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
-        paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+        paycheck.GrossAmount.Should().BeApproximately(expectedGrossAmount, Precision);
     }
 
     public static TheoryData<int, decimal, decimal> GrossAmountWithConfiguredPaycheckCountTestCases = new()
@@ -131,7 +135,7 @@ public class PaycheckCalculatorTests
             .Should()
             .HaveSameCount(employee.Dependents)
             .And
-            .AllSatisfy(a => a.Amount.Should().BeApproximately(276.92m, 0.01m));
+            .AllSatisfy(a => a.Amount.Should().BeApproximately(ExpectedBaseDependentCost, Precision));
     }    
     
     [Fact]
@@ -160,7 +164,7 @@ public class PaycheckCalculatorTests
             .Should()
             .HaveSameCount(employee.Dependents)
             .And
-            .AllSatisfy(a => a.Amount.Should().BeApproximately(369.23m, 0.01m));
+            .AllSatisfy(a => a.Amount.Should().BeApproximately(ExpectedDependentCostWithAdditionalCost, Precision));
     }        
     
     [Theory]
@@ -190,19 +194,19 @@ public class PaycheckCalculatorTests
             .Should()
             .HaveSameCount(employee.Dependents)
             .And
-            .AllSatisfy(a => a.Amount.Should().BeApproximately(expectedDeductionAmount, 0.01m));
+            .AllSatisfy(a => a.Amount.Should().BeApproximately(expectedDeductionAmount, Precision));
     }    
     
     public static TheoryData<string, int, int, decimal> A = new()
     {
-        { "1974-01-01", 2024, 1, 369.23m },
-        { "1974-02-01", 2024, 1, 276.92m },
-        { "1974-02-01", 2024, 2, 276.92m },
-        { "1974-02-01", 2024, 3,  369.23m },
-        { "1974-05-15", 2024, 9,  276.92m  },
-        { "1974-05-15", 2024, 10,  369.23m },
-        { "1974-02-01", 2024, 26,  369.23m },
-        { "1975-01-01", 2024, 26,  276.92m },
+        { "1974-01-01", 2024, 1, ExpectedDependentCostWithAdditionalCost },
+        { "1974-02-01", 2024, 1, ExpectedBaseDependentCost },
+        { "1974-02-01", 2024, 2, ExpectedBaseDependentCost },
+        { "1974-02-01", 2024, 3,  ExpectedDependentCostWithAdditionalCost },
+        { "1974-05-15", 2024, 9,  ExpectedBaseDependentCost  },
+        { "1974-05-15", 2024, 10,  ExpectedDependentCostWithAdditionalCost },
+        { "1974-02-01", 2024, 26,  ExpectedDependentCostWithAdditionalCost },
+        { "1975-01-01", 2024, 26,  ExpectedBaseDependentCost },
     };
     
     [Fact]
@@ -220,7 +224,7 @@ public class PaycheckCalculatorTests
         paycheck.Should().NotBeNull();
         paycheck.Deductions.Should().HaveCount(2);
         var deduction = paycheck.Deductions.Single(a => a.Type == DeductionType.HighSalary);
-        deduction.Amount.Should().BeApproximately(76.92m, 0.01m);
+        deduction.Amount.Should().BeApproximately(76.92m, Precision);
     }
     
     [Fact]
@@ -278,7 +282,7 @@ public class PaycheckCalculatorTests
         var paycheck = await paycheckCalculator.Calculate(2024, 1, new Employee() { Salary = salary });
 
         paycheck.Should().NotBeNull();
-        paycheck.NetAmount.Should().BeApproximately(expectedGrossAmount, 0.01m);
+        paycheck.NetAmount.Should().BeApproximately(expectedGrossAmount, Precision);
     }
 
     public static TheoryData<decimal, decimal> NetAmountTestCases = new()
@@ -320,7 +324,7 @@ public class PaycheckCalculatorTests
         var paycheck = await paycheckCalculator.Calculate(2024, 1, employee);
 
         paycheck.Should().NotBeNull();
-        paycheck.NetAmount.Should().BeApproximately(1400 , 0.01m);
+        paycheck.NetAmount.Should().BeApproximately(1400 , Precision);
     }    
 
 }
