@@ -1,4 +1,5 @@
-﻿using Api.Core.Repositories;
+﻿using Api.Controllers;
+using Api.Core.Repositories;
 using Api.Presentation.Dtos.Employee;
 using Api.Presentation.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -24,20 +25,7 @@ public class EmployeesController : ControllerBase
     public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> Get(int id, CancellationToken ct)
     {
         var employeeResult = await _repository.Find(id, ct);
-        return employeeResult.Match<ActionResult<ApiResponse<GetEmployeeDto>>>(
-            e => new ApiResponse<GetEmployeeDto>
-            {
-                Data = _mapper.ToGetEmployeeDto(e),
-                Success = true
-            },
-            //node: return not found with error code and message which can help clint to understand what happened 
-            // we can move strings to resources file if we would like to show it on the client side UI and we would like this service to be responsible for the localized text.
-            // I decided not to do it for this example.
-            error => NotFound(
-                ApiResponse<GetEmployeeDto>.CreateError(
-                    $"Employee {id} not found in the storage.",
-                    ErrorCodes.EmployeeNotFound))
-        );
+        return employeeResult.ToResultWithApiResponse(_mapper.ToGetEmployeeDto, $"Employee {id} not found in the storage.", ErrorCodes.EmployeeNotFound);
     }
 
     [SwaggerOperation(Summary = "Get all employees")]

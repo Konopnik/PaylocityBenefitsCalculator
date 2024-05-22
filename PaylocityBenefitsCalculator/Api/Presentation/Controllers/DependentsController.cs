@@ -1,4 +1,5 @@
-﻿using Api.Core.Repositories;
+﻿using Api.Controllers;
+using Api.Core.Repositories;
 using Api.Presentation.Dtos.Dependent;
 using Api.Presentation.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -23,18 +24,9 @@ public class DependentsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<GetDependentDto>>> Get(int id, CancellationToken ct)
     {
-        var findResult = await _repository.Find(id, ct);
-        return findResult.Match<ActionResult<ApiResponse<GetDependentDto>>>(
-            d => new ApiResponse<GetDependentDto>
-            {
-                Data = _mapper.ToGetDependentDto(d),
-                Success = true
-            },
-            error => NotFound(
-                ApiResponse<GetDependentDto>.CreateError(
-                    $"Dependent {id} not found in the storage.",
-                    ErrorCodes.DependentNotFound))
-        );
+        var response = await _repository.Find(id, ct);
+        return response.ToResultWithApiResponse(_mapper.ToGetDependentDto, $"Dependent {id} not found in the storage.", ErrorCodes.EmployeeNotFound);
+        
     }
 
     [SwaggerOperation(Summary = "Get all dependents")]

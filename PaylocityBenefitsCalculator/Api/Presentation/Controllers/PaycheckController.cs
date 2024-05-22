@@ -1,7 +1,8 @@
-using Api.Core.Repositories;
-using Api.Core.Services;
+using Api.Controllers;
 using Api.Presentation.Dtos.Paycheck;
 using Api.Presentation.Models;
+using Api.UseCases.Paychecks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -19,14 +20,12 @@ namespace Api.Presentation.Controllers;
 [Route("api/v1/[controller]")]
 public class PaycheckController : ControllerBase
 {
-    private readonly IPaycheckCalculator _paycheckCalculator;
-    private readonly IEmployeeRepository _employeeRepository;
+    private readonly ISender _sender;
     private readonly ModelToDtosMapper _mapper;
 
-    public PaycheckController(IPaycheckCalculator paycheckCalculator, IEmployeeRepository employeeRepository, ModelToDtosMapper mapper)
+    public PaycheckController(ISender sender, ModelToDtosMapper mapper)
     {
-        _paycheckCalculator = paycheckCalculator;
-        _employeeRepository = employeeRepository;
+        _sender = sender;
         _mapper = mapper;
     }
 
@@ -38,24 +37,7 @@ public class PaycheckController : ControllerBase
         int employeeId,
         CancellationToken ct)
     {
-        var employeeResult = await _employeeRepository.Find(employeeId, ct);
-        return employeeResult.Match<ActionResult<ApiResponse<GetPaycheckDto>>>(
-            e =>
-            {
-                var paycheck = _paycheckCalculator.Calculate(year, paycheckNumber, e);
-                var result = new ApiResponse<GetPaycheckDto>
-                {
-                    Data =  _mapper.ToGetPaycheckDto(paycheck),
-                    Success = true
-                };
-
-                return result;
-                
-            },
-            error => NotFound(
-                ApiResponse<GetPaycheckDto>.CreateError(
-                    $"Employee {employeeId} not found => paycheck cannot be calculated.",
-                    ErrorCodes.EmployeeNotFound))
-        );
+        var response = await _sender.Send(new GetPaycheckCalculationQuery(year, paycheckNumber, employeeId), ct); 
+        return response.ToResultWithApiResponse(_mapper.ToGetPaycheckDto, $"Employee {employeeId} not found => paycheck cannot be calculated.", ErrorCodes.EmployeeNotFound);
     }
 }
