@@ -55,7 +55,7 @@ public class PaycheckController : ControllerBase
                 
             },
             error => NotFound(
-                ApiResponse<GetEmployeeDto>.CreateError(
+                ApiResponse<GetPaycheckDto>.CreateError(
                     $"Employee {employeeId} not found => paycheck cannot be calculated.", 
                     ErrorCodes.EmployeeNotFound))
         );
