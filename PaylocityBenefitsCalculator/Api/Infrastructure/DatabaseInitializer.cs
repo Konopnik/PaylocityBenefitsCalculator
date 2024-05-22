@@ -1,7 +1,6 @@
 using Api.Models;
-using Api.Repositories.Errors;
 
-namespace Api.Repositories;
+namespace Api.Infrastructure;
 
 /// <summary>
 /// Class responsible for handling the data access of the Employee entity.
@@ -15,9 +14,13 @@ namespace Api.Repositories;
 // - Does any part of our application list all dependents without employees? if not "Get all dependent" endpoint is not needed.
 // - Does any part of our application need to load Dependent without previously loading Employee? if not "Get dependent by id" endpoint is not needed, if yes -> How did this part gets the Dependent Id?
 // So it could lead to remove DependentController and its repository - I can explain this more on the interview 
-public class InMemoryRepository : IEmployeeRepository, IDependentRepository
+
+// note3: since I introduced repositories which uses EF, I will rename this class and use it for database seeding only 
+public class DatabaseInitializer
 {
-    private readonly List<Employee> _employeesStorage = new List<Employee>
+    private readonly DataContext _context;
+
+    private readonly List<Employee> _initialEmployees = new List<Employee>
     {
         new()
         {
@@ -83,35 +86,17 @@ public class InMemoryRepository : IEmployeeRepository, IDependentRepository
         }
     };
 
-    public Task<IEnumerable<Employee>> GetAll(CancellationToken cancellationToken = default)
+    public DatabaseInitializer(DataContext context)
     {
-        return Task.FromResult(_employeesStorage.AsEnumerable());
+        _context = context;
     }
 
-    async Task<Result<Dependent, NotFoundError>> IDependentRepository.Find(int id, CancellationToken cancellationToken)
+    public async Task Initialize(CancellationToken ct = default)
     {
-        // simulating async call to a database
-        var dependent = await Task.FromResult(_employeesStorage.SelectMany(e => e.Dependents).FirstOrDefault(d => d.Id == id));
-        if (dependent == null)
+        if (!_context.Employees.Any())
         {
-            return new NotFoundError();
+            _context.Employees.AddRange(_initialEmployees);
+            await _context.SaveChangesAsync(ct);
         }
-        return dependent;
-    }
-
-    Task<IEnumerable<Dependent>> IDependentRepository.GetAll(CancellationToken cancellationToken)
-    {
-        return Task.FromResult(_employeesStorage.SelectMany(e => e.Dependents));
-    }
-
-    public async Task<Result<Employee, NotFoundError>> Find(int id, CancellationToken cancellationToken = default)
-    {
-        // simulating async call to a database
-        var employee = await Task.FromResult(_employeesStorage.FirstOrDefault(e => e.Id == id));
-        if (employee == null)
-        {
-            return new NotFoundError();
-        }
-        return employee;
     }
 }

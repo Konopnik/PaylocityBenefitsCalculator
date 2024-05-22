@@ -1,8 +1,12 @@
 using System;
 using System.Net.Http;
+using Xunit;
+// note: configure the tests to run in sequence, because of database initialization problems - I do not want to spend more time here and i do not know xUnit and it's behaviour much
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerClass, DisableTestParallelization = true)]
 
 namespace ApiTests;
 
+[Collection("Integration tests")]
 public class IntegrationTest : IDisposable
 {
     // I decided to use test approach with WebApplicationFactory => this way I can run the tests without running API separately
