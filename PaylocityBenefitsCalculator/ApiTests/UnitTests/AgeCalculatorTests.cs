@@ -1,5 +1,5 @@
 using System;
-using Api.Services;
+using Api.Core.Services;
 using FluentAssertions;
 using Xunit;
 

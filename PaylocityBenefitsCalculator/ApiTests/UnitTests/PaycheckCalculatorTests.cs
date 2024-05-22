@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Api.Models;
-using Api.Services;
-using Api.Settings;
+using Api.Core.Entities;
+using Api.Core.Enums;
+using Api.Core.Services;
+using Api.Core.Settings;
 using FluentAssertions;
 using Xunit;
 

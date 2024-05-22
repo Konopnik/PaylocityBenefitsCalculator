@@ -1,3 +1,4 @@
+using Api.Presentation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -5,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace ApiTests;
 
-public class CustomWebApplicationFactory : WebApplicationFactory<Api.Program>
+public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     protected override IHost CreateHost(IHostBuilder builder)
     {
